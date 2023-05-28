@@ -8,6 +8,23 @@ from scrapy import signals
 # useful for handling different item types with a single interface
 from itemadapter import is_item, ItemAdapter
 
+from random_user_agent import UserAgent
+from fp.fp import FreeProxy
+from scrapy.downloadermiddlewares.httpproxy import HttpProxyMiddleware
+import random
+
+
+class RandomProxyMiddleware(HttpProxyMiddleware):
+
+    def __init__(self, *args, **kwargs):
+
+        super(RandomProxyMiddleware, self).__init__(*args, **kwargs)
+        self.fp = FreeProxy()
+
+    def process_request(self, request, spider):
+
+        request.meta['proxy'] = self.fp.get()
+
 
 class SapsSpiderMiddleware:
     # Not all methods need to be defined. If a method is not defined,
@@ -60,6 +77,8 @@ class SapsDownloaderMiddleware:
     # Not all methods need to be defined. If a method is not defined,
     # scrapy acts as if the downloader middleware does not modify the
     # passed objects.
+    def __init__(self):
+        self.user_agent = UserAgent()
 
     @classmethod
     def from_crawler(cls, crawler):
@@ -78,6 +97,10 @@ class SapsDownloaderMiddleware:
         # - or return a Request object
         # - or raise IgnoreRequest: process_exception() methods of
         #   installed downloader middleware will be called
+        # Generate a random user agent string
+        user_agent = self.user_agent.get_random_user_agent()
+        # Set the User-Agent header to the generated value
+        request.headers['User-Agent'] = user_agent
         return None
 
     def process_response(self, request, response, spider):
