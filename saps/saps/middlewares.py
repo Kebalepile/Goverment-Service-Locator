@@ -8,10 +8,10 @@ from scrapy import signals
 # useful for handling different item types with a single interface
 from itemadapter import is_item, ItemAdapter
 
-from random_user_agent import UserAgent
+from random_user_agent.user_agent import UserAgent
 from fp.fp import FreeProxy
 from scrapy.downloadermiddlewares.httpproxy import HttpProxyMiddleware
-import random
+
 
 
 class RandomProxyMiddleware(HttpProxyMiddleware):
