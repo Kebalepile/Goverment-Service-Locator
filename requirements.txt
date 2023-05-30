@@ -1,0 +1,7 @@
+1. python
+2. pip
+3. scrapy
+4. random_user_agent 
+5. proxy-randomizer
+6  ipython
+7  virtualenv
