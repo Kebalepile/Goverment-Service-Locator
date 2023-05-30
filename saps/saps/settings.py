@@ -22,7 +22,11 @@ ROBOTSTXT_OBEY = False
 FEEDS ={
     "contacts_data.json":{
         "format":"json",
-        "overwirte":True
+        "overwrite":True,
+        'encoding': 'utf8',
+        'store_empty': False,
+        'fields': None,
+        'indent': 4,
     }
 }
 
@@ -70,9 +74,9 @@ DOWNLOADER_MIDDLEWARES = {
 
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
-# ITEM_PIPELINES = {
-#    "saps.pipelines.SapsPipeline": 300,
-# }
+ITEM_PIPELINES = {
+   "saps.pipelines.SapsPipeline": 300,
+}
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://docs.scrapy.org/en/latest/topics/autothrottle.html
