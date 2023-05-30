@@ -8,7 +8,6 @@ class ContactsSpider(scrapy.Spider):
     allowed_domains = ["www.saps.gov.za"]
     start_urls = ["https://www.saps.gov.za/contacts/index.php"]
 
-   
     def parse(self, response):
         province_page_url_paths = response.xpath(
             '//area[starts-with(@href, "provdetails")]/@href').getall()
@@ -19,6 +18,7 @@ class ContactsSpider(scrapy.Spider):
 
     def parse_province_info(self, response):
         province_info = {
+            "page_url": response.url,
             'province': "",
             "commissioner_details": {},
             "police_stations": {
@@ -64,7 +64,8 @@ class ContactsSpider(scrapy.Spider):
             yield scrapy.Request(
                 absoluteURL,
                 callback=self.parse_police_station_info,
-                meta={"province_info": province_info}  # Pass province_info using meta
+                # Pass province_info using meta
+                meta={"province_info": province_info}
             )
 
     def parse_police_station_info(self, response):
@@ -74,8 +75,14 @@ class ContactsSpider(scrapy.Spider):
 
         station_details = {
             "name": re.sub(r"(?i)station: ", "", station_name),
+            "page_url": response.url,
             "contacts": {},
             "addresses": {},
+            "map_coordinates": {
+                "latitude": response.xpath('//b[contains(text(), "LATITUDE:")]/following-sibling::text()').get(),
+                "longitude": response.xpath('//b[contains(text(), "LONGITUDE:")]/following-sibling::text()').get()
+            },
+            "additonal_contacts":{}
         }
 
         contact_table_rows = response.xpath(
@@ -100,6 +107,22 @@ class ContactsSpider(scrapy.Spider):
 
         addresse_info = {key: value.strip()
                          for key, value in address_tuples if value.strip() != ''}
+        additional_contacts = response.xpath('//b[contains(text(), "Additional contact numbers:")]/following-sibling::table[1]//td//text()').getall()
+        
+        if(len(additional_contacts)):
+            additional_contacts = [number.strip() for number in additional_contacts if number.strip()]
+            
+            key = ''
+            for item in additional_contacts:
+                if item == 'Contact nr:' or item == 'Email:':
+                    continue
+                elif not any(char.isdigit() for char in item) and '@' not in item:
+                    key = item
+                    station_details["additonal_contacts"][key] = ''
+                else:
+                    station_details["additonal_contacts"][key] += item + ', '
+           
+
         station_details['addresses'].update(addresse_info)
 
         province_info["police_stations"]["stations"].append(station_details)
@@ -108,4 +131,4 @@ class ContactsSpider(scrapy.Spider):
 
         saps_contact_item = SapaContactsItem()
         saps_contact_item["data"] = province_info
-        yield saps_contact_item["data"] 
+        yield saps_contact_item["data"]

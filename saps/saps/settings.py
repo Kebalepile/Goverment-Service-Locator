@@ -20,7 +20,7 @@ NEWSPIDER_MODULE = "saps.spiders"
 ROBOTSTXT_OBEY = False
 # Where to save the data.
 FEEDS ={
-    "contacts_data.json":{
+    "scraped_contacts.json":{
         "format":"json",
         "overwrite":True,
         'encoding': 'utf8',

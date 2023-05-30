@@ -15,3 +15,4 @@ class SapsPipeline:
     def close_spider(self, spider):
         print(
             f"*--------------*\n K e heditse ka go dirisa: {spider.name} \n*--------------*")
+        
